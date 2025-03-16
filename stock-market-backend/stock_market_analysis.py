@@ -81,7 +81,7 @@ def generate_stock_charts(ticker):
 
     # Monte Carlo Simulation
     try:
-        start_price = float(stock_data['Close'].dropna().iloc[-1])  # Fix for float conversion issue
+        start_price = float(stock_data['Close'].dropna().iloc[-1]) if not stock_data['Close'].dropna().empty else None
     except IndexError:
         logger.error("No closing price data available for Monte Carlo simulation.")
         return {"error": f"No valid closing price found for {ticker}"}
@@ -125,7 +125,11 @@ def stock_monte_carlo(start_price, days, mu, sigma):
     """Simulates stock prices using Geometric Brownian Motion"""
     price = np.zeros(days)
     price[0] = start_price
-    shocks = np.random.normal(loc=mu / days, scale=sigma * np.sqrt(1 / days), size=days - 1)  # Fix size mismatch
-    drifts = np.full(days - 1, mu / days)
-    price[1:] = price[:-1] * (1 + drifts + shocks)
+    
+    for t in range(1, days):
+        shock = np.random.normal(loc=mu / days, scale=sigma * np.sqrt(1 / days))
+        price[t] = price[t - 1] * np.exp(shock)  # Exponentiate to ensure compounding
+        
     return price
+
+
