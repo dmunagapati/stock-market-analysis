@@ -9,10 +9,10 @@ from stock_market_analysis import generate_stock_charts
 
 app = FastAPI()
 
-# Enable CORS for frontend
+# ✅ Update to allow your frontend's URL instead of "*"
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow frontend connection (Update to your frontend domain later)
+    allow_origins=["https://pleasant-flow-production.up.railway.app"],  # Replace with your frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
