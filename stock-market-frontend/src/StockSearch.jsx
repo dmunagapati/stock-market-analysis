@@ -8,7 +8,8 @@ function StockSearch({ setImages }) {
   const fetchCharts = async () => {
     try {
       console.log(`Fetching stock charts for: ${ticker}`);
-      const response = await axios.get(`http://127.0.0.1:8000/stock/${ticker}`);
+      const API_URL = "https://stock-market-analysis-ojfi.onrender.com"
+      const response = await axios.get(`${API_URL}/stock/${ticker}`);
       console.log("API Response:", response.data);
       setImages(response.data.images); // Make sure this updates state correctly
     } catch (error) {
