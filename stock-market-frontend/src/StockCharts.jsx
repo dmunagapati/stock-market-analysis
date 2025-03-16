@@ -1,17 +1,15 @@
 import React from "react";
 
 function StockCharts({ images }) {
-  console.log("Rendering images:", images);
+  if (!images.length) {
+    return <p style={{ color: "#34568B" }}>Enter a stock symbol to view data.</p>;
+  }
 
   return (
-    <div>
-      {images.length === 0 ? (
-        <p>No charts to display</p>
-      ) : (
-        images.map((img, index) => (
-          <img key={index} src={img} alt={`Stock chart ${index}`} style={{ width: "600px", margin: "10px" }} />
-        ))
-      )}
+    <div className="stock-charts">
+      {images.map((src, index) => (
+        <img key={index} src={src} alt={`Stock Chart ${index + 1}`} />
+      ))}
     </div>
   );
 }
