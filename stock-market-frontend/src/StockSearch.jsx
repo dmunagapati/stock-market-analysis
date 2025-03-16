@@ -10,7 +10,7 @@ function StockSearch({ setImages }) {
       console.log(`Fetching stock charts for: ${ticker}`);
 
       // Update this URL to your Railway backend
-      const API_URL = "stock-market-analysis-production.up.railway.app";
+      const API_URL = "https://stock-market-analysis-production.up.railway.app/stock/";
 
       const response = await axios.get(`${API_URL}${ticker}`);
       console.log("API Response:", response.data);
