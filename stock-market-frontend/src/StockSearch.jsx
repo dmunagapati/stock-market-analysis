@@ -8,9 +8,13 @@ function StockSearch({ setImages }) {
   const fetchCharts = async () => {
     try {
       console.log(`Fetching stock charts for: ${ticker}`);
-      const response = await axios.get(`http://127.0.0.1:8000/stock/${ticker}`);
+
+      // Update this URL to your Railway backend
+      const API_URL = "https://stock-market-analysis-production.up.railway.app/stock/";
+
+      const response = await axios.get(`${API_URL}${ticker}`);
       console.log("API Response:", response.data);
-      setImages(response.data.images); // Make sure this updates state correctly
+      setImages(response.data.images); // Ensure state updates correctly
     } catch (error) {
       console.error("Error fetching stock data:", error);
     }
