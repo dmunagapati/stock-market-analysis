@@ -3,6 +3,8 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
+import socket  # To get the public hostname
+
 from stock_market_analysis import generate_stock_charts
 
 app = FastAPI()
@@ -10,11 +12,19 @@ app = FastAPI()
 # Enable CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow frontend connection
+    allow_origins=["*"],  # Allow frontend connection (Update to your frontend domain later)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Get the public hostname (important for Render or any hosting service)
+hostname = os.getenv("RENDER_EXTERNAL_URL", f"http://{socket.gethostname()}:8000")
+
+@app.get("/")
+def home():
+    """Health check endpoint"""
+    return {"message": "FastAPI Backend is Live!"}
 
 @app.get("/stock/{ticker}")
 def generate_stock_charts_api(ticker: str):
@@ -24,12 +34,13 @@ def generate_stock_charts_api(ticker: str):
     if isinstance(image_paths, dict):  # If error
         return JSONResponse(image_paths)
 
-    # FIX: Ensure correct URL paths
-    image_urls = [f"http://127.0.0.1:8000/images/{os.path.basename(path)}" for path in image_paths]
+    # ✅ Fix: Use the correct base URL for images
+    image_urls = [f"{hostname}/images/{os.path.basename(path)}" for path in image_paths]
 
-    print(f"Generated images: {image_urls}")  # Debugging line
+    print(f"Generated images: {image_urls}")  # Debugging
 
     return JSONResponse({"images": image_urls})
 
 # Serve static images
 app.mount("/images", StaticFiles(directory="images"), name="images")
+
