@@ -12,7 +12,7 @@ app = FastAPI()
 # ✅ Update to allow your frontend's URL instead of "*"
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://stockmarketanalysis.up.railway.app/"],  # Replace with your frontend URL
+    allow_origins=["https://stockmarketanalysis.up.railway.app"],  # Replace with your frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
