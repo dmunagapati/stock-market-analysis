@@ -12,7 +12,13 @@ app = FastAPI()
 # ✅ Update to allow your frontend's URL instead of "*"
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://stockmarketanalysis.up.railway.app"],  # Replace with your frontend URL
+    allow_origins=[
+        "http://localhost:5173",  # ✅ Local development (Vite)
+        "http://localhost:3000",  # ✅ Local development (Create React App)
+        "https://stockmarketanalysis.up.railway.app"  # ✅ Deployed frontend
+        "https://stockmarketanalysis.up.railway.app/"  # ✅ Deployed frontend
+
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
