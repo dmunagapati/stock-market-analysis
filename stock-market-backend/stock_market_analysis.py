@@ -22,6 +22,39 @@ sns.set_style('whitegrid')
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def calculate_prediction_accuracy(ticker, predicted_prices, start_date):
+    """
+    Compares past predicted prices with actual stock prices.
+    Adjusts for weekends and holidays to only compare available trading days.
+    """
+    import pandas.tseries.offsets as offsets  # Required for business day calculations
+
+    # Get the last available trading days
+    trading_days = pd.bdate_range(start=start_date, periods=len(predicted_prices))
+
+    # Fetch actual stock data
+    actual_data = yf.download(ticker, start=trading_days[0], end=trading_days[-1] + timedelta(days=1))
+
+    if actual_data.empty or 'Close' not in actual_data.columns:
+        print(f"⚠️ No actual stock data found for {ticker} from {trading_days[0]} to {trading_days[-1]}")
+        return {"error": "No actual stock data available for accuracy calculation."}
+
+    # Extract closing prices, matching only available trading days
+    actual_prices = actual_data["Close"].reindex(trading_days).dropna().values
+    predicted_prices = predicted_prices[:len(actual_prices)]  # Trim predictions if needed
+
+    # Ensure we have valid price pairs to compare
+    if len(actual_prices) == 0:
+        return {"error": "Not enough valid stock data for comparison."}
+
+    # Compute Accuracy Metrics
+    mape = np.mean(np.abs((actual_prices - predicted_prices) / actual_prices)) * 100
+    rmse = np.sqrt(np.mean((actual_prices - predicted_prices) ** 2))
+
+    print(f"📊 Accuracy for {ticker}: MAPE={mape:.2f}%, RMSE={rmse:.2f}")
+
+    return {"mape": round(mape, 2), "rmse": round(rmse, 2)}
+
 # Ensure images directory exists
 IMAGE_DIR = "images"
 if not os.path.exists(IMAGE_DIR):
@@ -104,10 +137,10 @@ def generate_stock_charts(ticker):
     image_paths.append(image_path)
 
     # Next 7-Day Prediction (Monte Carlo)
-    next_week_prices = stock_monte_carlo(start_price, 7, mu, sigma)
+    future_prices = stock_monte_carlo(start_price, 7, mu, sigma)
 
     plt.figure(figsize=(10, 4))
-    plt.plot(range(1, 8), next_week_prices, marker="o", linestyle="dashed")
+    plt.plot(range(1, 8), future_prices, marker="o", linestyle="dashed")
     plt.title(f"Next 7 Days Prediction for {ticker}")
     plt.xlabel("Days Ahead")
     plt.ylabel("Predicted Price")
@@ -116,9 +149,31 @@ def generate_stock_charts(ticker):
     plt.close()
     image_paths.append(image_path)
 
+    if len(stock_data['Close']) >= 8:
+        backtest_start_price = stock_data['Close'].iloc[-8].item()
+        past_week_prices = stock_monte_carlo(backtest_start_price, 7, mu, sigma)
+
+        backtest_accuracy = calculate_prediction_accuracy(ticker, past_week_prices, datetime.now() - timedelta(days=7))
+
+        # Save Past Prediction Graph
+        plt.figure(figsize=(10, 4))
+        plt.plot(range(-7, 0), past_week_prices, marker="o", linestyle="dashed", label="Predicted")
+        plt.plot(range(-7, 0), stock_data['Close'].iloc[-7:], marker="s", linestyle="solid", label="Actual")
+        plt.title(f"Backtest: Last 7 Days Prediction vs Actual for {ticker}")
+        plt.xlabel("Days Ago")
+        plt.ylabel("Price")
+        plt.legend()  # ✅ FIXED
+        backtest_image_path = f"{IMAGE_DIR}/{ticker}_7day_backtest.png"
+        plt.savefig(backtest_image_path)
+        plt.close()
+        image_paths.append(backtest_image_path)
+    else:
+        logger.warning(f"Not enough historical data for backtesting {ticker}")
+        backtest_accuracy = {"error": "Not enough actual data to compare predictions."}
+
     logger.info(f"Charts saved for {ticker}")
 
-    return image_paths  # Return list of image paths
+    return {"images": image_paths, "backtest_accuracy": backtest_accuracy}
 
 
 def stock_monte_carlo(start_price, days, mu, sigma):
