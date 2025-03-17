@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
+import { useState } from "react";
 import axios from "axios";
 
-function StockSearch({ setImages, setAccuracy }) {
+function StockSearch({ setImages }) {
   const [ticker, setTicker] = useState("");
 
   const fetchCharts = async () => {
@@ -14,16 +15,7 @@ function StockSearch({ setImages, setAccuracy }) {
 
       const response = await axios.get(`${API_URL}${capitalizedTicker}`);
       console.log("API Response:", response.data);
-
-      // Set images data
       setImages(response.data.images);
-
-      // Ensure accuracy data is available in the response
-      console.log("Accuracy Data:", response.data.backtest_accuracy);
-
-      // Set the accuracy state
-      setAccuracy(response.data.backtest_accuracy); 
-
     } catch (error) {
       console.error("Error fetching stock data:", error);
     }
