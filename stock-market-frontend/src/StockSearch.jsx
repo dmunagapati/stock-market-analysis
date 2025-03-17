@@ -17,12 +17,7 @@ function StockSearch({ setImages }) {
       console.log("API Response:", response.data);
       setImages(response.data.images);
 
-      // Set accuracy data if available
-      if (response.data.backtest_accuracy) {
-        setAccuracy(response.data.backtest_accuracy);
-      } else {
-        setAccuracy({ error: "No accuracy data available" });
-      }
+      
     } catch (error) {
       console.error("Error fetching stock data:", error);
     }
