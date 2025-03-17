@@ -141,22 +141,3 @@ html, body {
     font-size: 1rem;
     margin-top: 15px;
 }
-
-.accuracy {
-    margin-top: 20px;
-    background-color: #f0f8ff; /* Light blue background */
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .accuracy h2 {
-    color: #003366; /* Dark blue for the heading */
-  }
-  
-  .accuracy p {
-    font-size: 1.1rem;
-    color: #333;
-  }
-  
