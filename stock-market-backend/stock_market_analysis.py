@@ -172,8 +172,10 @@ def generate_stock_charts(ticker):
         backtest_accuracy = {"error": "Not enough actual data to compare predictions."}
 
     logger.info(f"Charts saved for {ticker}")
+    
 
     return {"images": image_paths, "backtest_accuracy": backtest_accuracy}
+    print(response)
 
 
 def stock_monte_carlo(start_price, days, mu, sigma):
